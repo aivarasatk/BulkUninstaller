@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BulkUninstaller", "BulkUninstaller\BulkUninstaller.csproj", "{A9717FE1-AA84-41DB-BB73-64BDB6F49121}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A9717FE1-AA84-41DB-BB73-64BDB6F49121}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9717FE1-AA84-41DB-BB73-64BDB6F49121}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9717FE1-AA84-41DB-BB73-64BDB6F49121}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9717FE1-AA84-41DB-BB73-64BDB6F49121}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {58897DEB-E2D3-48E2-81AC-4E8526EFF39B}
+	EndGlobalSection
+EndGlobal

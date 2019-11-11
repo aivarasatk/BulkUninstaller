@@ -1,0 +1,61 @@
+﻿<Window x:Class="BulkUninstaller.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BulkUninstaller"
+        xmlns:model="clr-namespace:BulkUninstaller.Model"
+        xmlns:converters="clr-namespace:BulkUninstaller.Converters"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="15"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800"
+        d:DataContext="{d:DesignInstance d:Type=model:MainModel}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <converters:SizeConverter x:Key="SizeConverter"/>
+        </Grid.Resources>
+        <GroupBox Grid.Row="0" Margin="8" Header="Installed programs">
+            <DataGrid ItemsSource="{Binding RegistryEntries}" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Program" Width="auto"  IsReadOnly="True">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding DisplayIcon}" Width="16" Height="16" Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding DisplayName}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Size" Width="auto"  IsReadOnly="True" Binding="{Binding EstimatedSize, Converter={StaticResource SizeConverter}}">
+                    </DataGridTextColumn>
+                    <DataGridCheckBoxColumn Header="Selected" Binding="{Binding IsSelected}" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Header="Controls" Margin="8">
+            <StackPanel  Orientation="Horizontal">
+                <Button Command="{Binding LoadInstalledProgramsCommand}"  Style="{StaticResource MaterialDesignRaisedButton}" Width="60" Height="40" Margin="8">
+                    <materialDesign:PackIcon Kind="Refresh" HorizontalAlignment="Center" Width="30" Height="30"/>
+                </Button>
+
+                <Button Command="{Binding UninstallSelectedCommand}"  Style="{StaticResource MaterialDesignRaisedButton}" Width="60" Height="40" Margin="8">
+                    <materialDesign:PackIcon Kind="TrashCan" HorizontalAlignment="Center" Width="30" Height="30"/>
+                </Button>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+
+</Window>
