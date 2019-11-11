@@ -37,6 +37,8 @@ namespace BulkUninstaller.ViewModel
 
         private async void OnLoadInstalledPrograms()
         {
+            Model.IsLoading = true;
+            Model.RegistryEntries.Clear();
             var programs = (await _registryService.GetAllInstalledSoftware()).OrderBy(s => s.DisplayName);
 
             await TrySetEstimatedSizesAsync(programs);
@@ -51,6 +53,7 @@ namespace BulkUninstaller.ViewModel
             });
 
             Model.RegistryEntries = new ObservableCollection<RegistryEntryGridRow>(registryEntryGridRows);
+            Model.IsLoading = false;
         }
 
         private async Task TrySetEstimatedSizesAsync(IEnumerable<RegistryEntry> programs)

@@ -24,6 +24,7 @@
         </Grid.RowDefinitions>
         <Grid.Resources>
             <converters:SizeConverter x:Key="SizeConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         </Grid.Resources>
         <GroupBox Grid.Row="0" Margin="8" Header="Installed programs">
             <DataGrid ItemsSource="{Binding RegistryEntries}" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" >
@@ -56,6 +57,9 @@
                 </Button>
             </StackPanel>
         </GroupBox>
+        <materialDesign:Card UniformCornerRadius="14" Padding="4" Grid.RowSpan="2" Width="80" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <ProgressBar  Style="{StaticResource MaterialDesignCircularProgressBar}" Value="0" IsIndeterminate="True" Width="50" Height="50"/>
+        </materialDesign:Card>
     </Grid>
 
 </Window>

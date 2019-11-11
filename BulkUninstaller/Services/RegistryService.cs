@@ -78,25 +78,30 @@ namespace BulkUninstaller.Services
 
         private ImageSource GetDisplayIcon(string filePath)
         {
-            if (string.IsNullOrEmpty(filePath)) return null;
+            var defaultIconPath = "broken.ico";
+            if (string.IsNullOrEmpty(filePath)) return GetImageSourceFromIconPath(defaultIconPath);
             try
             {
                 var splitFilePath = filePath.Split(',');
                 var cleanPath = splitFilePath[0].Replace("\"", "");
-                var icon = Icon.ExtractAssociatedIcon(cleanPath);
-                using (Bitmap bmp = icon.ToBitmap())
-                {
-                    var stream = new MemoryStream();
-                    bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                    return BitmapFrame.Create(stream);
-                }
+                return GetImageSourceFromIconPath(cleanPath);
             }
             catch(Exception ex)
             {
-                //LOG file might be missing
-                return null;
+                return GetImageSourceFromIconPath(defaultIconPath);
             }
             
+        }
+
+        private ImageSource GetImageSourceFromIconPath(string path)
+        {
+            var icon = Icon.ExtractAssociatedIcon(path);
+            using (Bitmap bmp = icon.ToBitmap())
+            {
+                var stream = new MemoryStream();
+                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                return BitmapFrame.Create(stream);
+            }
         }
     }
 }

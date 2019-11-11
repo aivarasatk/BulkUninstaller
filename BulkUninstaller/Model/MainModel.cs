@@ -13,8 +13,14 @@ namespace BulkUninstaller.Model
     public class MainModel : INotifyPropertyChanged
     {
         private ObservableCollection<RegistryEntryGridRow> _registryEntries;
+        private bool _isLoading;
         public ICommand LoadInstalledProgramsCommand { get; set; }
         public ICommand UninstallSelectedCommand { get; set; }
+
+        public MainModel()
+        {
+            RegistryEntries = new ObservableCollection<RegistryEntryGridRow>();
+        }
 
 
         public ObservableCollection<RegistryEntryGridRow> RegistryEntries
@@ -26,6 +32,18 @@ namespace BulkUninstaller.Model
             set
             {
                 this.MutateVerbose(ref _registryEntries, value, RaisePropertyChanged());
+            }
+        }
+
+        public bool IsLoading
+        {
+            get
+            {
+                return _isLoading;
+            }
+            set
+            {
+                this.MutateVerbose(ref _isLoading, value, RaisePropertyChanged());
             }
         }
 
