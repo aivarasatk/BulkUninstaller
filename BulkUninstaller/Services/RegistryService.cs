@@ -78,8 +78,10 @@ namespace BulkUninstaller.Services
 
         private ImageSource GetDisplayIcon(string filePath)
         {
-            var defaultIconPath = "broken.ico";
-            if (string.IsNullOrEmpty(filePath)) return GetImageSourceFromIconPath(defaultIconPath);
+            var defaultIconPath = Path.Combine(Directory.GetCurrentDirectory(), "broken.ico");
+            if (string.IsNullOrEmpty(filePath)) 
+                return GetImageSourceFromIconPath(defaultIconPath);
+
             try
             {
                 var splitFilePath = filePath.Split(',');
@@ -96,7 +98,7 @@ namespace BulkUninstaller.Services
         private ImageSource GetImageSourceFromIconPath(string path)
         {
             var icon = Icon.ExtractAssociatedIcon(path);
-            using (Bitmap bmp = icon.ToBitmap())
+            using (var bmp = icon.ToBitmap())
             {
                 var stream = new MemoryStream();
                 bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);

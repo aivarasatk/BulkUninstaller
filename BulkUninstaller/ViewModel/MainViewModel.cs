@@ -10,12 +10,15 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace BulkUninstaller.ViewModel
 {
     public class MainViewModel
     {
         public MainModel Model { get; }
+
+        private static Dispatcher _uiDispatcher = Dispatcher.CurrentDispatcher;
 
         private readonly IRegistryService _registryService;
 
@@ -41,31 +44,42 @@ namespace BulkUninstaller.ViewModel
             Model.RegistryEntries.Clear();
             var programs = (await _registryService.GetAllInstalledSoftware()).OrderBy(s => s.DisplayName);
 
-            await TrySetEstimatedSizesAsync(programs);
-            var registryEntryGridRows = programs.Select(p => new RegistryEntryGridRow
-            {
-                DisplayIcon = p.DisplayIcon,
-                DisplayName = p.DisplayName,
-                EstimatedSize = p.EstimatedSize,
-                InstallLocation = p.InstallLocation,
-                UninstallString = p.UninstallString,
-                IsSelected = false
-            });
-
-            Model.RegistryEntries = new ObservableCollection<RegistryEntryGridRow>(registryEntryGridRows);
+            await LoadDataToViewAsync(programs);
             Model.IsLoading = false;
         }
 
-        private async Task TrySetEstimatedSizesAsync(IEnumerable<RegistryEntry> programs)
+        private async Task LoadDataToViewAsync(IEnumerable<RegistryEntry> programs)
         {
             await Task.Run(() =>
             {
                 foreach (var program in programs)
                 {
-                    if ((program.EstimatedSize == null || program.EstimatedSize == 0) && !string.IsNullOrEmpty(program.InstallLocation))
-                        program.EstimatedSize = CalculateInstallSize(program.InstallLocation);
+                    var finalProgram = GetProgramWithEstimatedSize(program);
+                    _uiDispatcher.Invoke(() =>  Model.RegistryEntries.Add(RegistryEntryToGridRow(finalProgram)));
                 }
             });
+            
+        }
+
+        private RegistryEntryGridRow RegistryEntryToGridRow(RegistryEntry finalProgram)
+        {
+            return new RegistryEntryGridRow
+            {
+                DisplayIcon = finalProgram.DisplayIcon,
+                DisplayName = finalProgram.DisplayName,
+                EstimatedSize = finalProgram.EstimatedSize,
+                InstallLocation = finalProgram.InstallLocation,
+                UninstallString = finalProgram.UninstallString,
+                IsSelected = false
+            };
+        }
+
+        private RegistryEntry GetProgramWithEstimatedSize(RegistryEntry program)
+        {
+            if ((program.EstimatedSize == null || program.EstimatedSize == 0) && !string.IsNullOrEmpty(program.InstallLocation))
+                program.EstimatedSize = CalculateInstallSize(program.InstallLocation);
+
+            return program;
         }
 
         private long? CalculateInstallSize(string installLocation)
@@ -76,13 +90,12 @@ namespace BulkUninstaller.ViewModel
             }
             catch(Exception ex)
             {
-                //swallow for now
-                Console.WriteLine();
+                //nothing we can do - size is left empty
+                return null;
             }
-            return null;
         }
 
-        private void OnUninstallSelceted()
+        private async void OnUninstallSelceted()
         {
             var selectedPrograms = Model.RegistryEntries.Where(_ => _.IsSelected).ToList();
             if (selectedPrograms.Count == 0)
@@ -91,38 +104,54 @@ namespace BulkUninstaller.ViewModel
                 return;
             }
 
-            foreach(var program in selectedPrograms)
+            Model.IsLoading = true;
+            await Task.Run(() =>
             {
-                Console.WriteLine(program.UninstallString);
-                var pathEnd = program.UninstallString.IndexOf(".exe") + 4;
-
-                if (pathEnd == program.UninstallString.Length || pathEnd + 1 == program.UninstallString.Length)
+                foreach (var program in selectedPrograms)
                 {
-                    try
-                    {
-                        Process.Start(program.UninstallString);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Failed to uninstall", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
+                    UninstallProgram(program);
                 }
-                else
-                {
-                    var paramsIndex = program.UninstallString.IndexOf(' ', pathEnd);
-                    var programLocation = program.UninstallString.Substring(0, paramsIndex);
-                    var programParams = program.UninstallString.Substring(paramsIndex + 1);
+            });
+            Model.IsLoading = false;
+        }
 
-                    try
-                    {
-                        Process.Start(programLocation, programParams);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message, "Failed to uninstall", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
+        private void UninstallProgram(RegistryEntryGridRow program)
+        {
+            var pathEnd = program.UninstallString.IndexOf(".exe") + 4;
+
+            if (ProgramUninstallPathHasParams(pathEnd, program))
+            {
+                ExecuteUninstallProcess(() => Process.Start(program.UninstallString));
             }
+            else
+            {
+                var paramsIndex = program.UninstallString.IndexOf(' ', pathEnd);
+                var programLocation = program.UninstallString.Substring(0, paramsIndex);
+                var programParams = program.UninstallString.Substring(paramsIndex + 1);
+
+                ExecuteUninstallProcess(() => Process.Start(programLocation, programParams));
+            }
+        }
+
+        private void ExecuteUninstallProcess(Func<Process> func)
+        {
+            try
+            {
+                var processHandle = func.Invoke();
+
+                //since we are executing an uninstall command it might spawn 
+                //others that we do not control and this line will do nothing to prevent spam
+                processHandle.WaitForExit();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Failed to uninstall", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private bool ProgramUninstallPathHasParams(int pathEnd, RegistryEntryGridRow program)
+        {
+            return pathEnd == program.UninstallString.Length || pathEnd + 1 == program.UninstallString.Length;
         }
     }
 }
