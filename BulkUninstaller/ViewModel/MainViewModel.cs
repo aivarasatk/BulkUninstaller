@@ -18,7 +18,7 @@ namespace BulkUninstaller.ViewModel
     {
         public MainModel Model { get; }
 
-        private static Dispatcher _uiDispatcher = Dispatcher.CurrentDispatcher;
+        private static Dispatcher _uiDispatcher = Application.Current.Dispatcher;
 
         private readonly IRegistryService _registryService;
 
