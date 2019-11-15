@@ -9,6 +9,8 @@ hence the size might be actually lower than the app occupies.
 When uninstalling multiple apps at once there might be many promts at once, 
 since the uninstall .exe file might spawn other processes which actually do the work. 
 Keeping track of those is a bigger task than the benefits.
+<br>
+**Disclaimer**: some apps might require admin rights to uninstall. In that case run the app as admin
 
 ## Future development
 
