@@ -22,3 +22,6 @@ though this could be transformed to "how many processes are waiting to be uninst
 ## Screens
 If you do not have Visual Studio environment you can download a .zip with executable from this link - https://drive.google.com/open?id=1H1ae9NumbQn20EZx4ZHZ5uMU83beFawo
 ![InitialScreen](Demo/screen1.png)
+
+## Contributing
+[MIT license](license.txt)
